@@ -72,7 +72,7 @@ vector_mutacion = generar_vector_aleatorio(TAMANIO_POBLACION)
 print("Vector de mutación:", vector_mutacion)
 
 ##################################################################
-# Generar el vector mutado según el criterio dado
+# Generar el vector C mutado según el criterio dado
 ###################################################################
 
 vector_mutado = []
