@@ -6,4 +6,4 @@
 
 Alumnos:
 * Gustavo Julián Rivas
-* Myrna Degano
+* Myrna Lorena Degano
