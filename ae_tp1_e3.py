@@ -18,9 +18,10 @@ LONGITUD_CROMOSOMA = 10  # precisión de 2 decimales -> 10 bits
 NUM_GENERACIONES = 100
 PROB_CRUCE = 0.85
 PROB_MUTACION = 0.07
-##############################################
+#####################################################################################
 # Función para inicializar la población
-##############################################
+# La función inicializar_poblacion genera una lista de individuos binarios aleatorios.
+#####################################################################################
 
 
 def inicializar_poblacion(tamanio_poblacion, longitud_cromosoma):
@@ -30,16 +31,18 @@ def inicializar_poblacion(tamanio_poblacion, longitud_cromosoma):
         poblacion.append(cromosoma)
     return poblacion
 
-#############################################
+######################################################################################################
 # Función para decodificar un cromosoma
-#############################################
+# La función decodificar_cromosoma convierte un cromosoma binario en un valor real en el rango [0, 10].
+#######################################################################################################
 
 def decodificar_cromosoma(cromosoma):
     return int(cromosoma, 2) / (2**LONGITUD_CROMOSOMA - 1) * 10
 
-#############################################
+###################################################################################################
 # Función para evaluar la población
-#############################################
+#La función evaluar_poblacion calcula la aptitud de un individuo utilizando la función funcion_g.
+##################################################################################################
 
 def evaluar_poblacion(poblacion):
     aptitudes = []
@@ -48,9 +51,10 @@ def evaluar_poblacion(poblacion):
         aptitudes.append(funcion_g(c))
     return aptitudes
 
-############################################
+################################################################################################
 # Función para selección por torneo
-############################################
+# La función seleccion_torneo selecciona individuos para el cruce mediante el método de torneo.
+################################################################################################
 
 def seleccion_torneo(poblacion, aptitudes, k=3):
     seleccionados = []
@@ -59,9 +63,10 @@ def seleccion_torneo(poblacion, aptitudes, k=3):
         seleccionados.append(max(aspirantes, key=lambda x: x[1])[0])
     return seleccionados
 
-#############################################
+##########################################################################################
 # Función para cruce
-#############################################
+# La función cruce realiza el cruce entre dos individuos con una probabilidad pc de 0.85.
+##########################################################################################
 
 def cruce(padre1, padre2):
     if random.random() < PROB_CRUCE:
@@ -72,9 +77,10 @@ def cruce(padre1, padre2):
     return padre1, padre2
 
 
-###############################################
+##########################################################################
 # Función para mutación
-###############################################
+# La función mutacion muta los individuos con una probabilidad pm de 0.07.
+##########################################################################
 
 def mutacion(cromosoma):
     cromosoma_mutado = ''.join(
