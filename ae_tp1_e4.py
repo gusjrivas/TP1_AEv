@@ -1,14 +1,40 @@
+####################################################################
+# CEIA - 16Co2024 - Algoritmos Evolutivos - TP1 - Ejercicio 4
+# Gustavo J. Rivas (a1620) | Myrna L. Degano (a1618)
+####################################################################
+# Algoritmo genético que utilice el operador de selección por ruleta
+# con probabilidades de cruza y mutación a elección.
+####################################################################
+
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 # Parámetros del algoritmo genético
-TAMANIO_POBLACION = 50
-LONGITUD_CROMOSOMA_X = 14  # Para representar valores en [-10, 10] con precisión de 3 decimales
-LONGITUD_CROMOSOMA_Y = 14  # Para representar valores en [0, 20] con precisión de 3 decimales
-GENERACIONES = 100
-PROBABILIDAD_CRUCE = 0.85
-PROBABILIDAD_MUTACION = 0.07
+
+print("\nINGRESE LOS PARÁMETROS PARA LA EJECUCIÓN DEL ALGORITMO (O <ENTER> PARA TOMAR LOS VALORES POR DEFAULT)\n")
+
+TAMANIO_POBLACION = input("TAMAÑO DE LA POBLACIÓN (DEFAULT: 50): ").strip()
+TAMANIO_POBLACION = int(TAMANIO_POBLACION) if TAMANIO_POBLACION else 50
+
+GENERACIONES = input("CANTIDAD DE GENERACIONES (DEFAULT: 100): ").strip()
+GENERACIONES = int(GENERACIONES) if GENERACIONES else 100
+
+PROBABILIDAD_CRUCE = input("PROBABILIDAD DE CRUCE (DEFAULT: 0.85): ").strip()
+PROBABILIDAD_CRUCE = float(PROBABILIDAD_CRUCE) if PROBABILIDAD_CRUCE else 0.85
+
+PROBABILIDAD_MUTACION = input("PROBABILIDAD DE MUTACIÓN (DEFAULT: 0.07): ").strip()
+PROBABILIDAD_MUTACION = float(PROBABILIDAD_MUTACION) if PROBABILIDAD_MUTACION else 0.07
+
+# Para representar valores de x entre [-10, 10] con precisión de 3 decimales
+# 10 - (-10) => Rango de x = 20.000 => 20000
+# Para representar valores de y entre [0, 20] con precisión de 3 decimales
+# Rango de y = 20.000 => 20000
+# 2**14 = 16384, 2**15 = 32768 => 15 bits
+LONGITUD_CROMOSOMA_X = 15
+LONGITUD_CROMOSOMA_Y = 15
+
 
 # Función de concentración c(x, y)
 def funcion_c(x, y):
@@ -22,10 +48,10 @@ def inicializar_poblacion(tamanio_poblacion, longitud_cromosoma_x, longitud_crom
 def decodificar_cromosoma(cromosoma):
     cromosoma_x = cromosoma[:LONGITUD_CROMOSOMA_X]
     cromosoma_y = cromosoma[LONGITUD_CROMOSOMA_X:]
-    valor_binario_x = int(cromosoma_x, 2)
-    valor_binario_y = int(cromosoma_y, 2)
-    x = -10 + valor_binario_x * 20 / (2**LONGITUD_CROMOSOMA_X - 1)
-    y = valor_binario_y * 20 / (2**LONGITUD_CROMOSOMA_Y - 1)
+    valor_decimal_x = int(cromosoma_x, 2)
+    valor_decimal_y = int(cromosoma_y, 2)
+    x = round(-10 + valor_decimal_x * 20 / (2**LONGITUD_CROMOSOMA_X - 1), 3)
+    y = round(valor_decimal_y * 20 / (2**LONGITUD_CROMOSOMA_Y - 1), 3)
     return x, y
 
 # Evaluar la aptitud de un individuo
@@ -69,6 +95,7 @@ def mutacion(individuo):
 def actualizar_poblacion(poblacion):
     nueva_poblacion = []
     seleccionados = seleccion_ruleta(poblacion)
+
     for i in range(0, len(seleccionados), 2):
         padre1 = seleccionados[i]
         padre2 = seleccionados[i+1 if i+1 < len(seleccionados) else 0]
@@ -80,26 +107,40 @@ def actualizar_poblacion(poblacion):
 # Algoritmo genético principal
 def algoritmo_genetico():
     poblacion = inicializar_poblacion(TAMANIO_POBLACION, LONGITUD_CROMOSOMA_X, LONGITUD_CROMOSOMA_Y)
+
+    resultados = []
     mejores_aptitudes = []
 
     for generacion in range(GENERACIONES):
+
         aptitudes = [evaluar_aptitud(individuo) for individuo in poblacion]
         mejor_aptitud = max(aptitudes)
         mejores_aptitudes.append(mejor_aptitud)
         mejor_individuo = poblacion[aptitudes.index(mejor_aptitud)]
-        
-        print(f"Generación {generacion}: Mejor aptitud = {mejor_aptitud}, Mejor individuo = {mejor_individuo}")
+
+        mejor_x, mejor_y = decodificar_cromosoma(mejor_individuo)
+        resultados.append([generacion+1, round(mejor_aptitud, 3), mejor_individuo, "x="+ str(mejor_x) +" y =" + str(mejor_y)])
 
         poblacion = actualizar_poblacion(poblacion)
 
     mejor_individuo = max(poblacion, key=evaluar_aptitud)
     mejor_x, mejor_y = decodificar_cromosoma(mejor_individuo)
     mejor_valor_c = evaluar_aptitud(mejor_individuo)
-    
+
+    headers = ["Generación #", "Mejor Aptitud", "Mejor individuo", "Fenotipo"]
+    print(tabulate(resultados, headers=headers, tablefmt="grid"))
+
     return mejor_x, mejor_y, mejor_valor_c, mejores_aptitudes
 
 # Ejecutar el algoritmo genético
 mejor_x, mejor_y, mejor_valor_c, mejores_aptitudes = algoritmo_genetico()
+mejor_valor_c = round(mejor_valor_c, 3)
+print(f"La concentración máxima aproximada de la función c es: {mejor_valor_c}")
+print(f"Valor de x: {mejor_x}")
+print(f"Valor de y: {mejor_y}")
+
+#Gráficos
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
 # Graficar c en función de x e y
 x_values = np.linspace(-10, 10, 400)
@@ -107,23 +148,23 @@ y_values = np.linspace(0, 20, 400)
 X, Y = np.meshgrid(x_values, y_values)
 Z = funcion_c(X, Y)
 
-plt.figure(figsize=(10, 5))
-contour = plt.contourf(X, Y, Z, levels=50, cmap='viridis')
-plt.colorbar(contour)
-plt.scatter([mejor_x], [mejor_y], color='red', zorder=5)
-plt.title('Distribución de la concentración c(x, y) y máximo encontrado')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.legend(['Máximo encontrado'])
-plt.grid(True)
-plt.show()
+contour = ax1.contourf(X, Y, Z, levels=50, cmap='viridis')
+fig.colorbar(contour, ax=ax1)
+ax1.scatter([mejor_x], [mejor_y], color='red', zorder=5)
+ax1.set_title('Distribución de la concentración c(x, y) y máximo encontrado')
+ax1.set_xlabel('x')
+ax1.set_ylabel('y')
+label_text = f'Máximo encontrado\nc({mejor_x}, {mejor_y})={mejor_valor_c}'
+ax1.legend([label_text])
+ax1.grid(True)
 
-# Graficar mejores aptitudes en función de cada generación
-plt.figure(figsize=(10, 5))
-plt.plot(range(GENERACIONES), mejores_aptitudes, label='Mejor aptitud por generación')
-plt.title('Mejor aptitud encontrada por generación')
-plt.xlabel('Generación')
-plt.ylabel('Mejor aptitud')
-plt.legend()
-plt.grid(True)
+# Graficar mejores aptitudes en función de cada generación en el segundo subgráfico (2D)
+ax2.plot(range(GENERACIONES), mejores_aptitudes, label='Mejor aptitud por generación')
+ax2.set_title('Mejor aptitud encontrada por generación')
+ax2.set_xlabel('Generación')
+ax2.set_ylabel('Mejor aptitud')
+ax2.legend()
+ax2.grid(True)
+
+plt.tight_layout()
 plt.show()
