@@ -141,7 +141,7 @@ print(f"Valor de x: {mejor_x}")
 print(f"Valor de y: {mejor_y}")
 
 #Gráficos
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 6))
+#fig, (ax, ax2) = plt.subplots(1, 2, figsize=(15, 6))
 
 # Graficar c en función de x e y
 # Crear una malla de puntos en el plano xy
@@ -159,12 +159,6 @@ ax = fig.add_subplot(111, projection='3d')
 # Graficar la superficie 3D
 ax.plot_surface(X, Y, Z, cmap='viridis')
 
-# Agregar etiquetas y título
-plt.figure(figsize=(10, 5))
-contour = plt.contourf(X, Y, Z, levels=50, cmap='viridis')
-plt.colorbar(contour)
-plt.scatter([mejor_x], [mejor_y], color='red', zorder=5)
-
 
 # Marcar el máximo punto de concentración con un punto rojo en la gráfica 3D
 
@@ -176,19 +170,16 @@ ax.set_ylabel('Y')
 ax.set_zlabel('Z')
 ax.set_title('Distribución de la concentración c(x, y) y máximo encontrado')
 
-
-
 # Mostrar la gráfica
 plt.show()
 
-
 # Graficar mejores aptitudes en función de cada generación en el segundo subgráfico (2D)
-ax2.plot(range(GENERACIONES), mejores_aptitudes, label='Mejor aptitud por generación')
-ax2.set_title('Mejor aptitud encontrada por generación')
-ax2.set_xlabel('Generación')
-ax2.set_ylabel('Mejor aptitud')
-ax2.legend()
-ax2.grid(True)
 
-plt.tight_layout()
+plt.figure(figsize=(10, 5))
+plt.plot(range(GENERACIONES), mejores_aptitudes, label='Mejor aptitud por generación')
+plt.title('Mejor aptitud encontrada por generación')
+plt.xlabel('Generación')
+plt.ylabel('Mejor aptitud')
+plt.legend()
+plt.grid(True)
 plt.show()
