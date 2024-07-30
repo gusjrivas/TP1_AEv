@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 # Parámetros del algoritmo genético
 TAMANIO_POBLACION = 50
@@ -21,7 +22,7 @@ def inicializar_poblacion(tamanio_poblacion, longitud_cromosoma_x, longitud_crom
 # Decodificar un cromosoma binario a un valor de x en [-10, 10] y y en [0, 20]
 def decodificar_cromosoma(cromosoma):
     cromosoma_x = cromosoma[:LONGITUD_CROMOSOMA_X]
-    cromosoma_y = cromosoma[LONGITUD_CROMOSOMA_X:]
+    cromosoma_y = cromosoma[LONGITUD_CROMOSOMA_Y:]
     valor_binario_x = int(cromosoma_x, 2)
     valor_binario_y = int(cromosoma_y, 2)
     x = -10 + valor_binario_x * 20 / (2**LONGITUD_CROMOSOMA_X - 1)
@@ -102,21 +103,43 @@ def algoritmo_genetico():
 mejor_x, mejor_y, mejor_valor_c, mejores_aptitudes = algoritmo_genetico()
 
 # Graficar c en función de x e y
-x_values = np.linspace(-10, 10, 400)
-y_values = np.linspace(0, 20, 400)
-X, Y = np.meshgrid(x_values, y_values)
+# Crear una malla de puntos en el plano xy
+x = np.linspace(-10, 10, 400)
+y = np.linspace(0, 20, 400)
+X, Y = np.meshgrid(x, y)
+
+# Evaluar la función en la malla de puntos
 Z = funcion_c(X, Y)
 
+# Crear una figura y un eje 3D
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Graficar la superficie 3D
+ax.plot_surface(X, Y, Z, cmap='viridis')
+
+# Agregar etiquetas y título
 plt.figure(figsize=(10, 5))
 contour = plt.contourf(X, Y, Z, levels=50, cmap='viridis')
 plt.colorbar(contour)
 plt.scatter([mejor_x], [mejor_y], color='red', zorder=5)
-plt.title('Distribución de la concentración c(x, y) y máximo encontrado')
-plt.xlabel('x')
-plt.ylabel('y')
-plt.legend(['Máximo encontrado'])
-plt.grid(True)
+
+
+# Marcar el máximo punto de concentración con un punto rojo en la gráfica 3D
+
+ax.scatter(mejor_x, mejor_y, mejor_valor_c, color='red', marker='o', s=100)
+
+# Agregar etiquetas y título
+ax.set_xlabel('X')
+ax.set_ylabel('Y')
+ax.set_zlabel('Z')
+ax.set_title('Distribución de la concentración c(x, y) y máximo encontrado')
+
+
+
+# Mostrar la gráfica
 plt.show()
+
 
 # Graficar mejores aptitudes en función de cada generación
 plt.figure(figsize=(10, 5))
